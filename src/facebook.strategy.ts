@@ -1,30 +1,28 @@
-import { Injectable } from "@nestjs/common";
-import { PassportStrategy } from "@nestjs/passport";
-import { Profile, Strategy } from "passport-facebook";
+import { Injectable } from '@nestjs/common'
+
+import { PassportStrategy } from '@nestjs/passport'
+import * as FacebookTokenStrategy from 'passport-facebook-token'
+
 
 @Injectable()
-export class FacebookStrategy extends PassportStrategy(Strategy, "facebook") {
+export class FacebookStrategy extends PassportStrategy(FacebookTokenStrategy, 'facebook-token') {
     constructor() {
         super({
             clientID: process.env.APP_ID,
             clientSecret: process.env.APP_SECRET,
-            callbackURL: "http://localhost:3000/facebook/redirect",
-            scope: "email",
-            profileFields: ["emails", "name"],
-        });
+        })
     }
 
     async validate(
         accessToken: string,
         refreshToken: string,
-        profile: Profile,
-        done: (err: any, user: any, info?: any) => void
+        profile: FacebookTokenStrategy.Profile,
+        done: (err: any, profile: any, info?: any) => void,
     ): Promise<any> {
-        const payload = {
-            profile,
-            accessToken,
-        };
-
-        done(null, payload);
+        try {
+            return done(null, profile) // whatever should get to your controller
+        } catch (e) {
+            return done('error', null)
+        }
     }
 }
