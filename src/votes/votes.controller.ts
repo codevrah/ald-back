@@ -1,32 +1,34 @@
-import {Controller, Get, UseGuards, HttpStatus, Req, Param, Query} from "@nestjs/common";
+import {Controller, Get, UseGuards, HttpStatus, Req, Param, Query, Post, Body} from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import {VotesService} from "./votes.service";
-import {CreateVoteDto} from "./dto/create-vote.dto";
+import {VoteDto} from "./dto/vote.dto";
 import {Vote} from "./schemas/votes.schema";
 import {User} from "./schemas/user.schema";
+import { UserDto } from "./dto/user.dto";
+import {QuestionDto} from "./dto/question.dto";
+import mongoose from "mongoose";
+import {Question} from "./schemas/question.schema";
 
-@Controller()
+@Controller('api')
 export class VotesController {
     constructor(private readonly votesService: VotesService) {}
 
     @UseGuards(AuthGuard('facebook-token'))
-    @Get('addVote')
-    async addVote(@Req() req, @Query('question') question: string, @Query('answer') answer: string): Promise<any>{
+    @Post('votes')
+    async addVote(@Req() req, @Body() voteDto: VoteDto): Promise<any>{
         const hasVoted = await this.votesService.hasVoted(req.user.id);
         if(hasVoted){
             return {
                 "error": "User has voted"
             }
         }
-        const createVoteDto = new CreateVoteDto(req.user, question, answer);
-        return this.votesService.create(createVoteDto);
-
-    }
-
-    @Get('getVotes')
-    async getVotes(): Promise<Vote[]> {
-        const votes = this.votesService.findAll();
-        return votes;
+        const userDto: UserDto = {
+            userId: req.user.id,
+            displayName: req.user.displayName,
+            email: req.user.emails[0].value,
+        };
+        voteDto.user = userDto;
+        return this.votesService.create(voteDto);
     }
 
     @Get('delete')
@@ -35,9 +37,8 @@ export class VotesController {
         return "ELIMINADO"
     }
 
-    @Get('findUsers')
-    async findUsers(): Promise<User[]> {
-        const users = this.votesService.findUsers();
-        return users;
+    @Get('questions')
+    async findQuestions(): Promise<Question[]>{
+        return this.votesService.findQuestions();
     }
 }
