@@ -6,6 +6,7 @@ import {User, UserDocument} from "../schemas/user.schema";
 import {UserDto} from "../dto/user.dto";
 import {VoteDto} from "../dto/vote.dto";
 import {Question, QuestionDocument} from "../schemas/question.schema";
+import * as _ from "lodash";
 
 @Injectable()
 export class VotesRepository {
@@ -27,6 +28,14 @@ export class VotesRepository {
         const createdVote = await new this.voteModel(voteDto);
         await createdVote.save();
         return createdVote;
+    }
+
+    async getVotes(): Promise<Vote[]> {
+        return this.voteModel.find().exec();
+    }
+
+    async updateVotes(unpublishedVotes: any[]): Promise<any> {
+        return this.voteModel.updateMany({id: {$in: _.map(unpublishedVotes, 'id')}}, {'published': true}).exec();
     }
 
     async deleteAll() {

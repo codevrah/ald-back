@@ -1,31 +1,38 @@
 import {Test, TestingModule} from '@nestjs/testing';
 import {VotesController} from './votes.controller';
-import {VoteDto} from './dto/vote.dto';
 import {VotesService} from './votes.service';
-import {UserDto} from './dto/user.dto';
-import {QuestionDto} from './dto/question.dto';
 import {getModelToken} from '@nestjs/mongoose';
-import {User, UserDocument, UserSchema} from "./schemas/user.schema"
+import {User, UserSchema} from "./schemas/user.schema"
 import {VotesRepository} from "./repository/votes.repository";
-import {Connection, connect, Model} from "mongoose";
 import {Vote, VoteSchema} from "./schemas/votes.schema";
 import spyOn = jest.spyOn;
 import * as UserStubs from "../../test/stubs/user.dto.stub";
-import {Vote1DTOStub} from "../../test/stubs/vote.dto.stub";
+import {Vote1DTOStub, votesUnpublishedDTOStub} from "../../test/stubs/vote.dto.stub";
 import {Question, QuestionSchema} from "./schemas/question.schema";
 
 describe('Votes Controller', () => {
     let votesController: VotesController;
-    let userModel: Model<User>;
     let votesService: VotesService;
     let votesRepository: VotesRepository;
 
     beforeAll(async () => {
         const app: TestingModule = await Test.createTestingModule({
+            imports: [],
             controllers: [VotesController],
             providers: [
                 VotesService,
-                VotesRepository,
+                {
+                    provide: VotesRepository,
+                    useValue: {
+                        createUser: jest.fn(),
+                        createVote: jest.fn(),
+                        deleteAll: jest.fn(),
+                        findQuestions: jest.fn(),
+                        findUser: jest.fn(),
+                        getVotes: jest.fn().mockResolvedValue(votesUnpublishedDTOStub()),
+                        updateVotes: jest.fn().mockResolvedValue(true)
+                    }
+                },
                 {provide: getModelToken(User.name), useValue: UserSchema},
                 {provide: getModelToken(Vote.name), useValue: VoteSchema},
                 {provide: getModelToken(Question.name), useValue: QuestionSchema},
@@ -63,6 +70,17 @@ describe('Votes Controller', () => {
     });
 
     describe("getVotes()", () => {
-        
+        it("Get votes", async () => {
+            const votes = await votesController.getVotes();
+            expect(spyOn(votesRepository, 'updateVotes')).toHaveBeenCalled();
+            expect(votes).toEqual({
+                "inFavor": 10,
+                "against": 90,
+                "total": 100,
+                "inFavorPercent": 10,
+                "againstPercent": 90,
+                "votesLeft": 0
+            });
+        });
     });
 });

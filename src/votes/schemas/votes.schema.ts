@@ -18,7 +18,13 @@ export class Vote {
     question: Question;
 
     @Prop()
-    answer: string;
+    type: string;
+
+    @Prop({default: false})
+    published?: boolean;
+
+    @Prop({ default: Date.now })
+    publishedDate?: Date;
 }
 
 export const VoteSchema = SchemaFactory.createForClass(Vote);
