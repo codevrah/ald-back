@@ -1,11 +1,10 @@
-
-import { QuestionDto } from "./question.dto";
-import {UserDto} from "./user.dto";
+import { UserDto } from './user.dto';
+import {User} from "../schemas/user.schema";
 
 export class VoteDto {
-    user: UserDto;
-    question: string;
-    type: string;
-    published?: boolean;
-    publishedDate?: Date;
+  user: User;
+  question: string;
+  type: string;
+  published?: boolean;
+  publishedDate?: Date;
 }

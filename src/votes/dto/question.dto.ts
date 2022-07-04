@@ -1,5 +1,5 @@
 export class QuestionDto {
-    published: boolean;
-    question: string;
-    publishedDate?: Date;
+  published: boolean;
+  question: string;
+  publishedDate?: Date;
 }

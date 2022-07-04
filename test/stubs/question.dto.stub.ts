@@ -1,8 +1,8 @@
-import {QuestionDto} from "../../src/votes/dto/question.dto";
+import { QuestionDto } from '../../src/votes/dto/question.dto';
 
 export const Question1DTOStub = (): QuestionDto => {
-    return {
-        published: true,
-        question: "Question1",
-    };
+  return {
+    published: true,
+    question: 'Question1',
+  };
 };
