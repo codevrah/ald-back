@@ -6,10 +6,12 @@ import { Question } from './schemas/question.schema';
 import * as _ from 'lodash';
 import {User} from "./schemas/user.schema";
 import {UserDto} from "./dto/user.dto";
+import {HttpService} from "@nestjs/axios";
+import {firstValueFrom} from "rxjs";
 
 @Injectable()
 export class VotesService {
-  constructor(private readonly votesRepository: VotesRepository) {}
+  constructor(private readonly votesRepository: VotesRepository, private readonly httpService: HttpService) {}
 
   async createUser(userDto: UserDto): Promise<User> {
     const user = await this.votesRepository.findUser(userDto.userId);
@@ -94,10 +96,15 @@ export class VotesService {
   //     return this.userModel.find().exec();
   // }
 
-  async hasVoted(userId: string): Promise<boolean> {
+  async hasVoted(userId: string, questionId: string): Promise<boolean> {
     const user: any = await this.votesRepository.findUser(userId);
     if (!user) return false;
-    const vote = await this.votesRepository.findVoteByUser(user.id);
+    const vote = await this.votesRepository.findVoteByUser(user.id, questionId);
     return vote != null;
+  }
+
+  async getFacebookIdUserByAccessToken(token: string): Promise<string>{
+    const result =  await firstValueFrom(this.httpService.get(`https://graph.facebook.com/me?fields=id&access_token=${token}`));
+     return result.data.id
   }
 }

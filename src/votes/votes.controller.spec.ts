@@ -12,6 +12,7 @@ import {
   votesUnpublishedDTOStub,
 } from '../../test/stubs/vote.dto.stub';
 import { Question, QuestionSchema } from './schemas/question.schema';
+import {HttpModule, HttpService} from "@nestjs/axios";
 
 describe('Votes Controller', () => {
   let votesController: VotesController;
@@ -20,7 +21,7 @@ describe('Votes Controller', () => {
 
   beforeAll(async () => {
     const app: TestingModule = await Test.createTestingModule({
-      imports: [],
+      imports: [HttpModule],
       controllers: [VotesController],
       providers: [
         VotesService,

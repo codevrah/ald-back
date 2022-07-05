@@ -36,8 +36,8 @@ export class VotesRepository {
     return createdVote;
   }
 
-  async findVoteByUser(userId: string): Promise<Vote> {
-    return this.voteModel.findOne({ user: userId }).exec();
+  async findVoteByUser(userId: string, questionId: string): Promise<Vote> {
+    return this.voteModel.findOne({ user: userId, question: questionId }).exec();
   }
 
   async getVotes(): Promise<Vote[]> {
