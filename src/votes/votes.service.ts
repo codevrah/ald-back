@@ -103,8 +103,8 @@ export class VotesService {
     return vote != null;
   }
 
-  async getFacebookIdUserByAccessToken(token: string): Promise<string>{
-    const result =  await firstValueFrom(this.httpService.get(`https://graph.facebook.com/me?fields=id&access_token=${token}`));
-     return result.data.id
+  async getFacebookUserDataByAccessToken(token: string): Promise<any>{
+    const result = await firstValueFrom(this.httpService.get(`https://graph.facebook.com/v3.0/me?fields=picture.type(large){url}&format=json&access_token=&access_token=${token}`));
+    return result.data;
   }
 }

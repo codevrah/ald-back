@@ -19,11 +19,12 @@ export class VotesController {
         error: 'User has voted',
       };
     }
+    const userData = await this.votesService.getFacebookUserDataByAccessToken(req.headers['access_token']);
     const userDto: UserDto = {
       userId: req.user.id,
       displayName: req.user.displayName,
       email: req.user.emails[0].value,
-      avatar: req.user.photos[0].value,
+      avatar: userData.picture.data.url
     };
     voteDto.user = await this.votesService.createUser(userDto);
     return this.votesService.create(voteDto);
@@ -53,8 +54,8 @@ export class VotesController {
   @Get('user-voted')
   async userHasVoted(@Req() req, @Query('question') questionId: string): Promise<any> {
     const token = req.headers['access_token'];
-    const userId = await this.votesService.getFacebookIdUserByAccessToken(token);
-    const hasVoted = await this.votesService.hasVoted(userId, questionId);
+    const userData = await this.votesService.getFacebookUserDataByAccessToken(token);
+    const hasVoted = await this.votesService.hasVoted(userData.id, questionId);
     return {
       vote: hasVoted
     }

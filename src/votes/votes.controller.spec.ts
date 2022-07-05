@@ -40,6 +40,7 @@ describe('Votes Controller', () => {
               ]),
             findUser: jest.fn(),
             findVoteByUser: jest.fn(),
+            getFacebookUserDataByAccessToken: jest.fn(),
             getVotes: jest.fn().mockResolvedValue(votesUnpublishedDTOStub()),
             updateVotes: jest.fn().mockResolvedValue(true),
           },
@@ -84,6 +85,14 @@ describe('Votes Controller', () => {
     it('User has not voted', async () => {
       spyOn(votesRepository, 'findUser').mockResolvedValue(null);
       spyOn(votesService, 'create').mockResolvedValue(null);
+      spyOn(votesService, 'getFacebookUserDataByAccessToken').mockResolvedValueOnce({
+        id: Vote1DTOStub().user.userId,
+        picture: {
+          data: {
+            url: Vote1DTOStub().user.avatar
+          }
+        }
+      })
       await votesController.addVote(
         {
           user: {
@@ -96,6 +105,9 @@ describe('Votes Controller', () => {
             ],
             photos: [{value: Vote1DTOStub().user.avatar}],
           },
+          headers: {
+            access_token: "a63hha3"
+          }
         },
         Vote1DTOStub(),
       );
