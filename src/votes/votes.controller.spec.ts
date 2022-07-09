@@ -13,6 +13,7 @@ import {
 } from '../../test/stubs/vote.dto.stub';
 import { Question, QuestionSchema } from './schemas/question.schema';
 import {HttpModule, HttpService} from "@nestjs/axios";
+import {HttpException} from "@nestjs/common";
 
 describe('Votes Controller', () => {
   let votesController: VotesController;
@@ -63,24 +64,28 @@ describe('Votes Controller', () => {
       spyOn(votesRepository, 'findVoteByUser').mockReturnValue({
         exec: jest.fn().mockResolvedValueOnce(Vote1DTOStub()),
       } as any);
-      const response = await votesController.addVote(
-        {
-          user: {
-            id: Vote1DTOStub().user.userId,
-            displayName: Vote1DTOStub().user.displayName,
-            emails: [
-              {
-                value: Vote1DTOStub().user.email,
-              },
-            ],
-            photos: [{value: Vote1DTOStub().user.avatar}],
+
+      try {
+        await votesController.addVote(
+          {
+            user: {
+              id: Vote1DTOStub().user.userId,
+              displayName: Vote1DTOStub().user.displayName,
+              emails: [
+                {
+                  value: Vote1DTOStub().user.email,
+                },
+              ],
+              photos: [{value: Vote1DTOStub().user.avatar}],
+            },
           },
-        },
-        Vote1DTOStub(),
-      );
-      expect(response).toEqual({
-        error: 'User has voted',
-      });
+          Vote1DTOStub(),
+        );
+      } catch (e) {
+        expect(e).toBeInstanceOf(HttpException);
+        expect(e.status).toEqual(409);
+        expect(e.response.error).toEqual("The user has voted already");
+      }
     });
     it('User has not voted', async () => {
       spyOn(votesRepository, 'findUser').mockResolvedValue(null);

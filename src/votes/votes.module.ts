@@ -8,6 +8,7 @@ import { VotesRepository } from './repository/votes.repository';
 import { Question, QuestionSchema } from './schemas/question.schema';
 import {FacebookStrategy} from "../facebook.strategy";
 import {HttpModule} from "@nestjs/axios";
+import {ParseObjectIdPipe} from "./pipes/objectid-validation.pipe";
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import {HttpModule} from "@nestjs/axios";
     ]),
   ],
   controllers: [VotesController],
-  providers: [FacebookStrategy, VotesService, VotesRepository],
+  providers: [ParseObjectIdPipe, FacebookStrategy, VotesService, VotesRepository],
 })
 export class VotesModule {}
